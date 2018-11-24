@@ -5,17 +5,15 @@
  * Date: 11/23/18
  * Time: 7:34 PM
  */
-//session_start();
-//include_once 'server/class/customer.php';
-//if(!isset($_SESSION['customer_id']))
-//{
-//    header('Location:login.php');
-//    exit();
-//}else{
-//    $customer_id = $_SESSION['customer_id'];
-//    $customer = new Customer();
+session_start();
+include_once 'class/Customer.php';
+if(!isset($_SESSION['customer_id']))
+{
+}else{
+    $customer_id = $_SESSION['customer_id'];
+    $customer = new Customer();
 //    $customer_det = $customer->fetchCustomer($customer_id);
-//}
+}
 
 ?>
 

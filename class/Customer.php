@@ -6,7 +6,7 @@
  * Time: 7:58 PM
  */
 
-include_once "../class/dbcontroller.php";
+include_once "dbcontroller.php";
 
 class Customer
 {
@@ -40,4 +40,17 @@ class Customer
 
         return $this->results;
     }
+
+    public function fetchCustomer($userID)
+    {
+        $userID = $this->dbcontroller->connectDB()->real_escape_string($userID);
+        $query = "SELECT * FROM `UserLogin` WHERE `username` = '{$username}' AND `passsword` = MD5('{$password}')";
+        $this->results = $this->dbcontroller->checkExistance($query);
+
+
+        return $this->results;
+    }
+
+
+
 }
