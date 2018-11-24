@@ -44,8 +44,8 @@ class Customer
     public function fetchCustomer($userID)
     {
         $userID = $this->dbcontroller->connectDB()->real_escape_string($userID);
-        $query = "SELECT * FROM `UserLogin` WHERE `username` = '{$username}' AND `passsword` = MD5('{$password}')";
-        $this->results = $this->dbcontroller->checkExistance($query);
+//        $query = "SELECT * FROM `UserLogin` WHERE `username` = '{$username}' AND `passsword` = MD5('{$password}')";
+//        $this->results = $this->dbcontroller->checkExistance($query);
 
 
         return $this->results;
