@@ -25,8 +25,8 @@ if(!isset($_SESSION['customer_id']))
     $customerAccounts = array();
     $customerAccounts = $customer->fetchAllAccounts($customer_id);
     $id = $_SESSION['id'];
-    $allTransactions = array();
-    $allTransactions = $customer->fetchAllTransactions($customer_id);
+    $guarantors = array();
+    $guarantors = $bank->getAllCustomers();
 //    $customer_det = $customer->fetchCustomer($id);
 }
 
@@ -36,17 +36,18 @@ if(!empty($_GET))
 {
     $request_data = $_GET;
 
-   $result = $request_data["output"];
+    $result = $request_data["output"];
 
-   $showMessage = true;
+    $showMessage = true;
 
 }
+
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Login V1</title>
+    <title>Loan Application</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
@@ -84,24 +85,6 @@ if(!empty($_GET))
     <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="js/transfer.js" type="text/javascript"></script>
     <!--===============================================================================================-->
-
-    <style>
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-
-        tr:nth-child(even) {
-            background-color: #dddddd;
-        }
-    </style>
 </head>
 <body>
 <section id="container" >
@@ -112,16 +95,16 @@ if(!empty($_GET))
         <div class="col-md-10 content">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    Funds Transfer To Third Party Account
+                    Loan Application
                 </div>
                 <div class="panel-body">
                     <div class="panel-body">
                         <div class="form">
-                            <form class="form-horizontal" id="transferForm" action="ajax/transfer_request.php" method="post" ">
+                            <form class="form-horizontal" id="transferForm" method="post" action="ajax/submit_loan_application.php" >
                                 <div class="form-group ">
                                     <label for="cus_account" class="control-label col-lg-3">Your Account</label>
                                     <div class="col-lg-6">
-                                        <select class="selectpicker" data-live-search="true" id="account" name="account" required>
+                                        <select class="selectpicker" data-live-search="true" id="account" name="account">
                                             <option value="" hidden>Select account</option>
                                             <?php
                                             foreach ($customerAccounts as $account) {
@@ -132,99 +115,89 @@ if(!empty($_GET))
                                         </select>
                                     </div>
                                 </div>
+
                                 <div class="form-group ">
-                                    <label for="account_number" class="control-label col-lg-3">Account Number</label>
+                                    <label for="cus_account" class="control-label col-lg-3">Guarantor</label>
                                     <div class="col-lg-6">
-                                        <input class=" form-control" id="account_number" name="account_number" type="text" placeholder="Account Number" required/>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
-                                    <label for="confirm_account_number" class="control-label col-lg-3">Confirm Account Number</label>
-                                    <div class="col-lg-6">
-                                        <input class=" form-control" id="confirm_account_number" name="confirm_account_number" type="text" placeholder="Confirm Account Number"required/>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
-                                    <label for="transaction_amount" class="control-label col-lg-3">Transaction Amount (LKR)</label>
-                                    <div class="col-lg-6">
-                                        <input class=" form-control" id="transaction_amount" name="transaction_amount" type="text" placeholder="Transaction Amount (LKR)" required/>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
-                                    <label for="branch" class="control-label col-lg-3">Branch</label>
-                                    <div class="col-lg-6">
-                                        <select class="selectpicker" data-live-search="true" id="branch" name="branch" required>
-                                            <option value="" hidden>Select branch</option>
+                                        <select class="selectpicker" data-live-search="true" id="guarantor" name="guarantor">
+                                            <option value="" hidden>Select guarantor</option>
                                             <?php
-                                            foreach ($branches as $branch) {
-                                                $branchCode = $branch['branchCode'];
-                                                $branchName = $branch['branchName'];
-                                                echo "<option value='{$branchCode}'>$branchName</option>";
+                                            foreach ($guarantors as $guarantor) {
+                                                $account_num = $guarantor['CustomerId'];
+                                                echo "<option value='{$account_num}'>$account_num</option>";
                                             }
                                             ?>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <div class="col-lg-offset-3 col-lg-6">
-                                        <button class="btn btn-primary" id="add_product" type="submit"">Transfer</button>
-                                        <!--                                            <button class="btn btn-default" type="button">Reset</button>-->
+                                <div class="form-group ">
+                                    <label for="account_number" class="control-label col-lg-3">Purpose</label>
+                                    <div class="col-lg-6">
+                                        <input class=" form-control" id="purpose" name="purpose" type="text" placeholder="Purpose for the loan" required/>
                                     </div>
                                 </div>
 
-                            <?php
+                                <div class="form-group ">
+                                    <label for="source_of_funds" class="control-label col-lg-3">Source of funds</label>
+                                    <div class="col-lg-6">
+                                        <input class=" form-control" id="source_of_funds" name="source_of_funds" type="text" placeholder="Source of funds"/>
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label for="collateral_type" class="control-label col-lg-3">Collateral type</label>
+                                    <div class="col-lg-6">
+                                        <input class=" form-control" id="collateral_type" name="collateral_type" type="text" placeholder="Collateral type"/>
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label for="collateral_notes" class="control-label col-lg-3">Collateral notes</label>
+                                    <div class="col-lg-6">
+                                        <input class=" form-control" id="collateral_notes" name="collateral_notes" type="text" placeholder="Collateral notes"/>
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label for="loan_amount" class="control-label col-lg-3">Loan amount</label>
+                                    <div class="col-lg-6">
+                                        <input class=" form-control" id="loan_amount" name="loan_amount" type="text" placeholder="Loan Amount"/>
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <label for="loan_type" class="control-label col-lg-3">Loan type</label>
+                                    <div class="col-lg-6">
+                                        <select class="selectpicker" data-live-search="true" id="loan_type" name="loan_type">
+                                            <option value="" hidden>Select loan type</option>
+                                            <option value='1'>1</option>
+                                            <option value='2'>2</option>
+                                            <option value='3'>3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group ">
+                                    <div class="col-lg-6">
+                                        <?php
+                                        echo "<input class=\" form-control\" id=\"customer_id\" name=\"customer_id\" type=\"hidden\" placeholder=\"Purpose for the loan\" value=\"{$customer_id}\" h/>";
+                                        ?>
+
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-offset-3 col-lg-6">
+                                        <button class="btn btn-primary" type="submit" id="add_product">Send application</button>
+                                        <!--                                            <button class="btn btn-default" type="button">Reset</button>-->
+                                    </div>
+                                </div>
+                                <?php
                                 if($showMessage){
                                     if($result == 1) {
-                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6s\"><div><font color='#008b8b'>Transaction successful</font></div></div></div>";
+                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6\"><div><font color='#008b8b'>Sent successfuly</font</div></div></div>";
                                     }else{
-                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6f\"><div><font color='#ff7f50'>Transaction failed</font></div></div></div>";
-
+                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6\"><div><font color='#ff7f50'>Sending failed</font></div></div></div>";
                                     }
                                 }
-                            ?>
-
+                                ?>
                             </form>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <section class="panel">
-                        <header class="panel-heading">
-                            All Transactions
-                        </header>
-                        <div class="panel-body">
-                            <div class="adv-table">
-                                <table  class="display table table-bordered table-striped" id="transactions-table" width="100%">
-                                    <tr>
-                                        <th>Id</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                        <th>Amount</th>
-                                        <th>Timestamp</th>
-                                    </tr>
-                                    <?php
-                                    $x=0;
-                                    foreach ($allTransactions as $transaction){
-                                        $from = $transaction['fromCustomerId'];
-                                        $to = $transaction['toCustomerId'];
-                                        $amount = $transaction['Amount'];
-                                        $timeStamp = $transaction['TimeStamp'];
-                                        $x = $x+1;
-                                        echo " <tr>
-                                        <td>$x</td>
-                                        <td>$from</td>
-                                        <td>$to</td>
-                                        <td>$amount</td>
-                                        <td>$timeStamp</td>
-                                    </tr>";
-                                    }
-                                    ?>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
                 </div>
             </div>
         </div>

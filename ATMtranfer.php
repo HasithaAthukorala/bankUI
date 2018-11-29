@@ -21,12 +21,12 @@ if(!isset($_SESSION['customer_id']))
     $customer = new Customer();
     $bank = new Bank();
     $branches = array();
-    $branches = $bank->getAllBranches();
+    $branches = $bank->getAllAtms();
     $customerAccounts = array();
     $customerAccounts = $customer->fetchAllAccounts($customer_id);
     $id = $_SESSION['id'];
     $allTransactions = array();
-    $allTransactions = $customer->fetchAllTransactions($customer_id);
+    $allTransactions = $customer->fetchAllATMTransactions($customer_id);
 //    $customer_det = $customer->fetchCustomer($id);
 }
 
@@ -117,7 +117,7 @@ if(!empty($_GET))
                 <div class="panel-body">
                     <div class="panel-body">
                         <div class="form">
-                            <form class="form-horizontal" id="transferForm" action="ajax/transfer_request.php" method="post" ">
+                            <form class="form-horizontal" id="transferForm" action="ajax/atm_transfer_request.php" method="post" ">
                                 <div class="form-group ">
                                     <label for="cus_account" class="control-label col-lg-3">Your Account</label>
                                     <div class="col-lg-6">
@@ -133,33 +133,20 @@ if(!empty($_GET))
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="account_number" class="control-label col-lg-3">Account Number</label>
-                                    <div class="col-lg-6">
-                                        <input class=" form-control" id="account_number" name="account_number" type="text" placeholder="Account Number" required/>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
-                                    <label for="confirm_account_number" class="control-label col-lg-3">Confirm Account Number</label>
-                                    <div class="col-lg-6">
-                                        <input class=" form-control" id="confirm_account_number" name="confirm_account_number" type="text" placeholder="Confirm Account Number"required/>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
                                     <label for="transaction_amount" class="control-label col-lg-3">Transaction Amount (LKR)</label>
                                     <div class="col-lg-6">
                                         <input class=" form-control" id="transaction_amount" name="transaction_amount" type="text" placeholder="Transaction Amount (LKR)" required/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="branch" class="control-label col-lg-3">Branch</label>
+                                    <label for="branch" class="control-label col-lg-3">ATM</label>
                                     <div class="col-lg-6">
                                         <select class="selectpicker" data-live-search="true" id="branch" name="branch" required>
                                             <option value="" hidden>Select branch</option>
                                             <?php
                                             foreach ($branches as $branch) {
-                                                $branchCode = $branch['branchCode'];
-                                                $branchName = $branch['branchName'];
-                                                echo "<option value='{$branchCode}'>$branchName</option>";
+                                                $branchCode = $branch['ATMId'];
+                                                echo "<option value='{$branchCode}'>$branchCode</option>";
                                             }
                                             ?>
                                         </select>
@@ -175,10 +162,9 @@ if(!empty($_GET))
                             <?php
                                 if($showMessage){
                                     if($result == 1) {
-                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6s\"><div><font color='#008b8b'>Transaction successful</font></div></div></div>";
+                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6\"><div><font color='#008b8b'>Transaction successful</font></div></div></div>";
                                     }else{
-                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6f\"><div><font color='#ff7f50'>Transaction failed</font></div></div></div>";
-
+                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6\"><div><font color='#ff7f50'>Transaction failed</font></div></div></div>";
                                     }
                                 }
                             ?>
@@ -200,22 +186,19 @@ if(!empty($_GET))
                                     <tr>
                                         <th>Id</th>
                                         <th>From</th>
-                                        <th>To</th>
                                         <th>Amount</th>
                                         <th>Timestamp</th>
                                     </tr>
                                     <?php
                                     $x=0;
                                     foreach ($allTransactions as $transaction){
-                                        $from = $transaction['fromCustomerId'];
-                                        $to = $transaction['toCustomerId'];
+                                        $from = $transaction['fromAccountID'];
                                         $amount = $transaction['Amount'];
                                         $timeStamp = $transaction['TimeStamp'];
                                         $x = $x+1;
                                         echo " <tr>
                                         <td>$x</td>
                                         <td>$from</td>
-                                        <td>$to</td>
                                         <td>$amount</td>
                                         <td>$timeStamp</td>
                                     </tr>";

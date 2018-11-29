@@ -6,6 +6,19 @@ class DBController {
     private $password = "";
     private $database = "bank";
 
+    function setRole($role){
+        if($role = 'user'){
+            $this->user = "usr";
+            $this->password = "usr";
+        }elseif ($role = 'employee'){
+            $this->user = "emp";
+            $this->password = "emp";
+        }else{
+            $this->user = "adm";
+            $this->password = "adm";
+        }
+    }
+
 	function __construct() {
 		$conn = $this->connectDB();
 		if(!empty($conn)) {
@@ -25,6 +38,8 @@ class DBController {
 		}
 		if(!empty($resultset)) {
             return $resultset;
+        }else{
+		    return "";
         }
 	}
 
@@ -35,9 +50,29 @@ class DBController {
         if($num_rows > 0) {
             $row = $result->fetch_assoc();
             session_start();
-            $_SESSION['customer_id'] = $row['id'];
+            $_SESSION['id'] = $row['id'];
+            $_SESSION['role'] = $row['role'];
+            if($row['role'] == 'user'){
+                $_SESSION['customer_id'] = $row['CustomerId'];
+            }else{
+                $_SESSION['customer_id'] = 'non';
+            }
             $output = 1;
         }else {
+            $output = 0;
+        }
+        return $output;
+    }
+
+    function getBoolean($query) {
+        $result = mysqli_query($this->conn,$query);
+        if($result != null){
+            if($result == 1){
+                $output = 1;
+            }else{
+                $output = 0;
+            }
+        }else{
             $output = 0;
         }
         return $output;

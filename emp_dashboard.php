@@ -12,13 +12,10 @@ if(!isset($_SESSION['customer_id']))
     header('Location:index.php');
     exit();
 }else{
-    if($_SESSION['role'] == 'employee'){
+    if($_SESSION['role'] == 'user'){
         header('Location:index.php');
         exit();
     }
-    $customer_id = $_SESSION['customer_id'];
-    $customer = new Customer();
-//    $customer_det = $customer->fetchCustomer($customer_id);
 }
 
 ?>

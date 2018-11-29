@@ -9,9 +9,14 @@ session_start();
 include_once 'class/Customer.php';
 if(!isset($_SESSION['customer_id']))
 {
+
 }else{
-    $customer_id = $_SESSION['customer_id'];
-    $customer = new Customer();
+    if($_SESSION['role'] == 'user'){
+        header('Location:dashboard.php');
+    }else{
+        header('Location:emp_dashboard.php');
+    }
+    exit();
 //    $customer_det = $customer->fetchCustomer($customer_id);
 }
 

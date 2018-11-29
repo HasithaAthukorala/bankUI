@@ -13,10 +13,6 @@ if(!isset($_SESSION['customer_id']))
     header('Location:index.php');
     exit();
 }else{
-    if($_SESSION['role'] == 'employee'){
-        header('Location:index.php');
-        exit();
-    }
     $customer_id = $_SESSION['customer_id'];
     $customer = new Customer();
     $bank = new Bank();
@@ -25,21 +21,19 @@ if(!isset($_SESSION['customer_id']))
     $customerAccounts = array();
     $customerAccounts = $customer->fetchAllAccounts($customer_id);
     $id = $_SESSION['id'];
-    $allTransactions = array();
-    $allTransactions = $customer->fetchAllTransactions($customer_id);
 //    $customer_det = $customer->fetchCustomer($id);
-}
 
-$showMessage = false;
+    $showMessage = false;
 
-if(!empty($_GET))
-{
-    $request_data = $_GET;
+    if(!empty($_GET))
+    {
+        $request_data = $_GET;
 
-   $result = $request_data["output"];
+        $result = $request_data["output"];
 
-   $showMessage = true;
+        $showMessage = true;
 
+    }
 }
 
 ?>
@@ -82,26 +76,8 @@ if(!empty($_GET))
     <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="js/transfer.js" type="text/javascript"></script>
+<!--    <script src="js/transfer.js" type="text/javascript"></script>-->
     <!--===============================================================================================-->
-
-    <style>
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-
-        tr:nth-child(even) {
-            background-color: #dddddd;
-        }
-    </style>
 </head>
 <body>
 <section id="container" >
@@ -117,11 +93,11 @@ if(!empty($_GET))
                 <div class="panel-body">
                     <div class="panel-body">
                         <div class="form">
-                            <form class="form-horizontal" id="transferForm" action="ajax/transfer_request.php" method="post" ">
+                            <form class="form-horizontal" id="transferForm" action="ajax/atm_transfer_request.php" " >
                                 <div class="form-group ">
                                     <label for="cus_account" class="control-label col-lg-3">Your Account</label>
                                     <div class="col-lg-6">
-                                        <select class="selectpicker" data-live-search="true" id="account" name="account" required>
+                                        <select class="selectpicker" data-live-search="true" id="account" name="account">
                                             <option value="" hidden>Select account</option>
                                             <?php
                                             foreach ($customerAccounts as $account) {
@@ -133,56 +109,17 @@ if(!empty($_GET))
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="account_number" class="control-label col-lg-3">Account Number</label>
-                                    <div class="col-lg-6">
-                                        <input class=" form-control" id="account_number" name="account_number" type="text" placeholder="Account Number" required/>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
-                                    <label for="confirm_account_number" class="control-label col-lg-3">Confirm Account Number</label>
-                                    <div class="col-lg-6">
-                                        <input class=" form-control" id="confirm_account_number" name="confirm_account_number" type="text" placeholder="Confirm Account Number"required/>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
                                     <label for="transaction_amount" class="control-label col-lg-3">Transaction Amount (LKR)</label>
                                     <div class="col-lg-6">
-                                        <input class=" form-control" id="transaction_amount" name="transaction_amount" type="text" placeholder="Transaction Amount (LKR)" required/>
-                                    </div>
-                                </div>
-                                <div class="form-group ">
-                                    <label for="branch" class="control-label col-lg-3">Branch</label>
-                                    <div class="col-lg-6">
-                                        <select class="selectpicker" data-live-search="true" id="branch" name="branch" required>
-                                            <option value="" hidden>Select branch</option>
-                                            <?php
-                                            foreach ($branches as $branch) {
-                                                $branchCode = $branch['branchCode'];
-                                                $branchName = $branch['branchName'];
-                                                echo "<option value='{$branchCode}'>$branchName</option>";
-                                            }
-                                            ?>
-                                        </select>
+                                        <input class=" form-control" id="transaction_amount" name="transaction_amount" type="text" placeholder="Transaction Amount (LKR)"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-lg-offset-3 col-lg-6">
-                                        <button class="btn btn-primary" id="add_product" type="submit"">Transfer</button>
+                                        <button class="btn btn-primary" type="submit" id="add_product">Transfer</button>
                                         <!--                                            <button class="btn btn-default" type="button">Reset</button>-->
                                     </div>
                                 </div>
-
-                            <?php
-                                if($showMessage){
-                                    if($result == 1) {
-                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6s\"><div><font color='#008b8b'>Transaction successful</font></div></div></div>";
-                                    }else{
-                                        echo "<div class=\"form-group\"><div class=\"col-lg-offset-3 col-lg-6f\"><div><font color='#ff7f50'>Transaction failed</font></div></div></div>";
-
-                                    }
-                                }
-                            ?>
-
                             </form>
                         </div>
                     </div>
@@ -197,30 +134,17 @@ if(!empty($_GET))
                         <div class="panel-body">
                             <div class="adv-table">
                                 <table  class="display table table-bordered table-striped" id="transactions-table" width="100%">
+                                    <thead>
                                     <tr>
                                         <th>Id</th>
                                         <th>From</th>
                                         <th>To</th>
+                                        <th>Branch</th>
                                         <th>Amount</th>
-                                        <th>Timestamp</th>
+                                        <th>Time</th>
                                     </tr>
-                                    <?php
-                                    $x=0;
-                                    foreach ($allTransactions as $transaction){
-                                        $from = $transaction['fromCustomerId'];
-                                        $to = $transaction['toCustomerId'];
-                                        $amount = $transaction['Amount'];
-                                        $timeStamp = $transaction['TimeStamp'];
-                                        $x = $x+1;
-                                        echo " <tr>
-                                        <td>$x</td>
-                                        <td>$from</td>
-                                        <td>$to</td>
-                                        <td>$amount</td>
-                                        <td>$timeStamp</td>
-                                    </tr>";
-                                    }
-                                    ?>
+                                    </thead>
+
                                 </table>
                             </div>
                         </div>

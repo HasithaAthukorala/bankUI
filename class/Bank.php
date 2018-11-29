@@ -20,7 +20,19 @@ class Bank
     }
 
     public function getAllBranches(){
-        $query = "SELECT * FROM `Branch`";
+        $query = "SELECT * FROM `branchDetailView`";
+        $this->results = $this->dbcontroller->executeQuery($query);
+        return $this->results;
+    }
+
+    public function getAllAtms(){
+        $query = "SELECT ATMId FROM `ATMInformation`";
+        $this->results = $this->dbcontroller->executeQuery($query);
+        return $this->results;
+    }
+
+    public function getAllCustomers(){
+        $query = "SELECT `CustomerId` FROM `Customer`";
         $this->results = $this->dbcontroller->executeQuery($query);
         return $this->results;
     }
